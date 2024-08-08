@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 17:49:40 by nate              #+#    #+#             */
-/*   Updated: 2024/08/07 07:45:09 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/08 12:42:17 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,21 +15,20 @@
 //	Print the state of the philo
 void	print_log(t_philo *philo, int state)
 {
+	pthread_mutex_lock(philo->info->printf.mutex);
 	if (state == 1)
-	{
 		printf("%ld %d is eating\n", ft_time(philo->info), philo->index);
-		philo->num_meal++;
-	}
 	else if (state == 2)
 		printf("%ld %d is sleeping\n", ft_time(philo->info), philo->index);
 	else if (state == 3)
 		printf("%ld %d is thinking\n", ft_time(philo->info), philo->index);
-	else if (state == 4)
-		printf("%ld %d has taken the right fork\n", \
+	else if (state == 4) // right one
+		printf("%ld %d has taken a fork\n", \
 			ft_time(philo->info), philo->index);
-	else if (state == 5)
-		printf("%ld %d has taken the left fork\n", \
+	else if (state == 5) // left one
+		printf("%ld %d has taken a fork\n", \
 			ft_time(philo->info), philo->index);
+	pthread_mutex_unlock(philo->info->printf.mutex);
 }
 
 long	convert_time(struct timeval *timestamp)
