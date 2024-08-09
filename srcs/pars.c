@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 17:49:10 by nate              #+#    #+#             */
-/*   Updated: 2024/08/07 07:50:12 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/09 14:01:03 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ void	ft_pars(char **av, t_info *info)
 	info->t_die = ft_atoi(av[2]);
 	info->t_eat = ft_atoi(av[3]);
 	info->t_sleep = ft_atoi(av[4]);
+	info->all_eaten = 0;
+	info->isddead = -1;
 	info->limit = -1;
 	if (av[5])
 		info->limit = ft_atoi(av[5]);

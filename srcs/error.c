@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 17:46:29 by nate              #+#    #+#             */
-/*   Updated: 2024/08/08 13:43:27 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/09 14:05:58 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,25 +17,20 @@ void	ft_destroy_mutex(t_info *info)
 {
 	int	i;
 
-	i = info->nb_philo;	
-	printf("START OF DESTROY MUTEX !! \n");
-	printf("NUM OF PHILO %d !! \n", info->nb_philo);
-	pthread_mutex_lock(info->simu_start.mutex);
-	while (i-- )
+	i = 0;
+	while (i < info->nb_philo)
 	{
-		printf("DESTROYED %d thread \n", i);
-		pthread_join(info->philo_tab[i++].thread, NULL);
+		pthread_join(*info->philo_tab[i].thread, NULL);
+		free(info->philo_tab[i].thread);
+		i++;
 	}
 	i = -1;
-	printf("INTO OF DESTROY MUTEX !! \n");
 	while (++i < info->nb_philo)
 	{
 		if (info->philo_tab[i].r_fork.init)
 			pthread_mutex_destroy(info->philo_tab[i].r_fork.mutex);
 		free(info->philo_tab[i].r_fork.mutex);
 	}
-	pthread_mutex_unlock(info->simu_start.mutex);
-	printf("END OF DESTROY MUTEX !! \n");
 }
 
 //	Clean all the simulation, aka :
@@ -44,9 +39,7 @@ void	ft_destroy_mutex(t_info *info)
 //		- Free the heap
 void	stop_simu(t_info *info)
 {
-	printf ("INTO STOP SIMU \n");
 	ft_destroy_mutex(info);
-	printf ("END OF  STOP SIMU \n");
 }
 
 //	Display the error message, stop the simulation and clear the program infos
@@ -62,15 +55,13 @@ void	ft_error(int error_code, t_info *info)
 	else if (error_code == 3)
 		printf("Malloc error\n");
 	else if (error_code == 4)
-		printf("%ld %d is dead\n", ft_time(info), whosdead(info));
+		printf("%ld %d died\n", ft_time(info), info->isddead);
 	else if (error_code == 5)
 		printf("All the philosophers have eat all their meals\n");
-	
-	printf("BEFORE STOP SIMU !! \n");
+	pthread_mutex_unlock(info->printf.mutex);
 	stop_simu(info);
 	if (info->printf.init)
 	{
-		pthread_mutex_unlock(info->printf.mutex);
 		pthread_mutex_destroy(info->printf.mutex);
 		free(info->printf.mutex);
 	}
@@ -79,5 +70,5 @@ void	ft_error(int error_code, t_info *info)
 		pthread_mutex_destroy(info->simu_start.mutex);
 		free(info->simu_start.mutex);
 	}
-	exit(1);
+	return ;
 }

@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/05 13:15:41 by nate              #+#    #+#             */
-/*   Updated: 2024/08/07 07:23:22 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/09 14:00:26 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ static int	check_meals(t_info *info)
 		if (info->philo_tab[i].num_meal < info->limit)
 			return (0);
 	}
+	info->all_eaten = 1;
 	return (1);
 }
 
@@ -42,8 +43,12 @@ static int	check_dead(t_info *info)
 	while (++i < info->nb_philo)
 	{
 		actual_time = ft_time(info);
-		if (actual_time > convert_time(&info->start) + info->t_die)
+		if (actual_time > info->philo_tab[i].meal + info->t_die)
+		{
+			info->isddead = i;
+			printf("IS DEAD VALUE : %d \n", i );
 			return (1);
+		}
 	}
 	return (0);
 }
@@ -54,10 +59,15 @@ void	monitor(t_info *info)
 	while (1)
 	{
 		if (check_dead(info))
+		{
 			ft_error(4, info);
+			return ;
+		}
 		if (check_meals(info))
+		{
 			ft_error(5, info);
+			return ;
+		}
 		usleep(100);
 	}
-	usleep(500);
 }

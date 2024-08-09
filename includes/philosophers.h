@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 17:31:45 by nate              #+#    #+#             */
-/*   Updated: 2024/08/07 07:21:54 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/09 14:06:02 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,6 @@ typedef struct s_mutex
 //		- Mutexs (Printf - Starter)
 //		- Timestamp of the start of the simulation
 //		-
-
 typedef struct s_info
 {
 	t_philo			*philo_tab;
@@ -58,8 +57,10 @@ typedef struct s_info
 	int				t_die;
 	int				t_eat;
 	int				t_sleep;
-	int				limit;
-	int				started;
+	char			limit;
+	char			started;
+	int				isddead;
+	int				all_eaten;
 	t_mutex			printf;
 	t_mutex			simu_start;
 	struct timeval	start;
@@ -67,13 +68,12 @@ typedef struct s_info
 
 typedef struct s_philo
 {
-	pthread_t		thread;
+	pthread_t		*thread;
 	int				index;
 	int				num_meal;
 	t_mutex			r_fork;
 	t_mutex			l_fork;
-	struct timeval	meal;
-	char			isddead;
+	long			meal;
 	t_info			*info;
 } t_philo;
 /* ************************************************************************** */
@@ -90,9 +90,8 @@ void	ft_error(int error_code, t_info *infos);
 
 int		ft_atoi(char *str);
 long	ft_time(t_info *info);
-int		whosdead(t_info *info);
 long	convert_time(struct timeval *timestamp);
-void	print_log(t_philo *philo, int state);
+int		print_log(t_philo *philo, int state);
 /* init.c		*/
 
 void	init_philo(t_info *info);
