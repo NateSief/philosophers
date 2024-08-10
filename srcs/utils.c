@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 17:49:40 by nate              #+#    #+#             */
-/*   Updated: 2024/08/09 14:01:43 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/10 08:16:04 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,9 @@ int	print_log(t_philo *philo, int state)
 			ft_time(philo->info), philo->index);
 	else if (state == 5)
 		printf("%ld %d has taken a fork\n", \
+			ft_time(philo->info), philo->index);
+	else if (state == 6)
+		printf("%ld %d has free a fork\n", \
 			ft_time(philo->info), philo->index);
 	pthread_mutex_unlock(philo->info->printf.mutex);
 	return (0);

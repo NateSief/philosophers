@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 17:46:29 by nate              #+#    #+#             */
-/*   Updated: 2024/08/09 14:05:58 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/10 08:21:50 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,11 @@ void	ft_destroy_mutex(t_info *info)
 			pthread_mutex_destroy(info->philo_tab[i].r_fork.mutex);
 		free(info->philo_tab[i].r_fork.mutex);
 	}
+	if (info->info.init)
+	{
+		pthread_mutex_destroy(info->info.mutex);
+		free(info->info.mutex);
+	}
 }
 
 //	Clean all the simulation, aka :
@@ -43,13 +48,13 @@ void	stop_simu(t_info *info)
 }
 
 //	Display the error message, stop the simulation and clear the program infos
-void	ft_error(int error_code, t_info *info)
+int	ft_error(int error_code, t_info *info)
 {
+	stop_simu(info);
 	if (info->printf.init)
 		pthread_mutex_lock(info->printf.mutex);
 	if (error_code == 1)
-		printf("Arguments should be : <philo number> <time to die> <time to \
-			eat> <time to sleep> optional : <number of meal>\n");
+		printf("Arguments incorrect\n");
 	else if (error_code == 2)
 		printf("GetTimeOfDay error\n");
 	else if (error_code == 3)
@@ -59,7 +64,6 @@ void	ft_error(int error_code, t_info *info)
 	else if (error_code == 5)
 		printf("All the philosophers have eat all their meals\n");
 	pthread_mutex_unlock(info->printf.mutex);
-	stop_simu(info);
 	if (info->printf.init)
 	{
 		pthread_mutex_destroy(info->printf.mutex);
@@ -70,5 +74,5 @@ void	ft_error(int error_code, t_info *info)
 		pthread_mutex_destroy(info->simu_start.mutex);
 		free(info->simu_start.mutex);
 	}
-	return ;
+	return (1);
 }

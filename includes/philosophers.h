@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 17:31:45 by nate              #+#    #+#             */
-/*   Updated: 2024/08/09 14:06:02 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/10 08:13:18 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,13 @@
 /* ************************************************************************** */
 /*									INCLUDES								  */
 /* ************************************************************************** */
-# include "stdio.h"
-# include "stdlib.h"
-# include "unistd.h"
-# include "sys/time.h"
-# include "pthread.h"
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <sys/time.h>
+# include <pthread.h>
+# include <string.h>
+# include <errno.h>
 /* ************************************************************************** */
 
 /* ************************************************************************** */
@@ -52,29 +54,30 @@ typedef struct s_mutex
 //		-
 typedef struct s_info
 {
-	t_philo			*philo_tab;
+	char			limit;
+	char			started;
 	int				nb_philo;
 	int				t_die;
 	int				t_eat;
 	int				t_sleep;
-	char			limit;
-	char			started;
 	int				isddead;
 	int				all_eaten;
 	t_mutex			printf;
 	t_mutex			simu_start;
+	t_mutex			info;
+	t_philo			*philo_tab;
 	struct timeval	start;
 } t_info;
 
 typedef struct s_philo
 {
-	pthread_t		*thread;
 	int				index;
 	int				num_meal;
+	long			meal;
+	pthread_t		*thread;
+	t_info			*info;
 	t_mutex			r_fork;
 	t_mutex			l_fork;
-	long			meal;
-	t_info			*info;
 } t_philo;
 /* ************************************************************************** */
 
@@ -85,7 +88,7 @@ typedef struct s_philo
 
 /* error.c		*/
 
-void	ft_error(int error_code, t_info *infos);
+int		ft_error(int error_code, t_info *infos);
 /* utils.c		*/
 
 int		ft_atoi(char *str);
@@ -94,16 +97,33 @@ long	convert_time(struct timeval *timestamp);
 int		print_log(t_philo *philo, int state);
 /* init.c		*/
 
-void	init_philo(t_info *info);
+int	init_philo(t_info *info);
 /* pars.c		*/
 
-void	ft_pars(char **av, t_info *info);
+int		ft_pars(char **av, t_info *info);
 /* routine.c	*/
 
+int		ft_sleep(int timer, t_philo *philo);
+void	lock_forks(t_philo *philo);
+void	unlock_forks(t_philo *philo);
 void	*routine(void *arg);
+/* routine2.c	*/
+
+int		routine_2(t_philo *philo);
 /* monitor.c	*/
 
-void	monitor(t_info *info);
+int	monitor(t_info *info);
 /* ************************************************************************** */
+
+/* ************************************************************************** */
+/*									DEBUG SHIT								  */
+/* ************************************************************************** */
+
+
+int my_pthread_mutex_lock(pthread_mutex_t *mutex, const char *mutex_name, const char *func, int line);
+int my_pthread_mutex_unlock(pthread_mutex_t *mutex, const char *mutex_name, const char *func, int line);
+
+// # define pthread_mutex_lock(mutex) my_pthread_mutex_lock(mutex, #mutex, __FUNCTION__, __LINE__)
+// # define pthread_mutex_unlock(mutex) my_pthread_mutex_unlock(mutex, #mutex, __FUNCTION__, __LINE__)
 
 #endif

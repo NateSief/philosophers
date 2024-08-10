@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 17:45:21 by nate              #+#    #+#             */
-/*   Updated: 2024/08/09 13:11:44 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/09 15:51:47 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,16 @@ static void	launch_philo(t_info *info)
 	t_philo	*arg;
 
 	i = -1;
+	pthread_mutex_lock(info->info.mutex);
 	pthread_mutex_lock(info->simu_start.mutex);
 	while (++i < info->nb_philo)
 	{
+		pthread_mutex_unlock(info->info.mutex);
 		arg = &info->philo_tab[i];
 		pthread_create(info->philo_tab[i].thread, NULL, routine, (void *)arg);
+		pthread_mutex_lock(info->info.mutex);
 	}
+	pthread_mutex_unlock(info->info.mutex);
 	if (gettimeofday(&info->start, NULL))
 	{
 		ft_error(2, info);
@@ -44,7 +48,8 @@ int	main(int ac, char **av)
 		return (0);
 	}
 	info.philo_tab = philo;
-	ft_pars(av, &info);
+	if (ft_pars(av, &info))
+		return(0);
 	init_philo(&info);
 	launch_philo(&info);
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/05 13:15:41 by nate              #+#    #+#             */
-/*   Updated: 2024/08/09 14:00:26 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/10 08:28:40 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,23 @@ static int	check_meals(t_info *info)
 	int	i;
 
 	i = -1;
+	pthread_mutex_lock(info->info.mutex);
 	if (info->limit == -1)
+	{
+		pthread_mutex_unlock(info->info.mutex);
 		return (0);
+	}
+	pthread_mutex_unlock(info->info.mutex);
 	while (++i < info->nb_philo)
 	{
 		if (info->philo_tab[i].num_meal < info->limit)
+		{
+			pthread_mutex_unlock(info->info.mutex);
 			return (0);
+		}
 	}
 	info->all_eaten = 1;
+	pthread_mutex_unlock(info->info.mutex);
 	return (1);
 }
 
@@ -40,34 +49,38 @@ static int	check_dead(t_info *info)
 	long	actual_time;
 
 	i = -1;
+	pthread_mutex_lock(info->info.mutex);
 	while (++i < info->nb_philo)
 	{
+		pthread_mutex_unlock(info->info.mutex);
 		actual_time = ft_time(info);
-		if (actual_time > info->philo_tab[i].meal + info->t_die)
+		pthread_mutex_lock(info->info.mutex);
+		if (actual_time > info->philo_tab[i].meal + info->t_die + 10)
 		{
 			info->isddead = i;
-			printf("IS DEAD VALUE : %d \n", i );
+			pthread_mutex_unlock(info->info.mutex);
 			return (1);
 		}
+		pthread_mutex_unlock(info->info.mutex);
+		pthread_mutex_lock(info->info.mutex);
 	}
+	pthread_mutex_unlock(info->info.mutex);
 	return (0);
 }
 
-void	monitor(t_info *info)
+// Just a loop that check every 200 usec if
+//		- A philo is dead of starving
+//		- All philo have eat
+int	monitor(t_info *info)
 {
 	pthread_mutex_unlock(info->simu_start.mutex);
 	while (1)
 	{
 		if (check_dead(info))
-		{
-			ft_error(4, info);
-			return ;
-		}
+			return (ft_error(4, info));
 		if (check_meals(info))
-		{
-			ft_error(5, info);
-			return ;
-		}
-		usleep(100);
+			return (ft_error(5, info));
+		usleep(500);
 	}
+	return (0);
 }
