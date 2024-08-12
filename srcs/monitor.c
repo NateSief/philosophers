@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/05 13:15:41 by nate              #+#    #+#             */
-/*   Updated: 2024/08/10 08:28:40 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/11 08:16:52 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ static int	check_meals(t_info *info)
 // Check for all the philo if they have eat in the proper time
 //		- Return 0 if there is no dead philospher
 //		- Return 1 if there is a dead philosopher
+//			/!\ Adding a +10 in the condition to match some latence from the
+//				computer
 static int	check_dead(t_info *info)
 {
 	int		i;
@@ -52,17 +54,13 @@ static int	check_dead(t_info *info)
 	pthread_mutex_lock(info->info.mutex);
 	while (++i < info->nb_philo)
 	{
-		pthread_mutex_unlock(info->info.mutex);
 		actual_time = ft_time(info);
-		pthread_mutex_lock(info->info.mutex);
 		if (actual_time > info->philo_tab[i].meal + info->t_die + 10)
 		{
-			info->isddead = i;
+			info->isddead = 1;
 			pthread_mutex_unlock(info->info.mutex);
 			return (1);
 		}
-		pthread_mutex_unlock(info->info.mutex);
-		pthread_mutex_lock(info->info.mutex);
 	}
 	pthread_mutex_unlock(info->info.mutex);
 	return (0);

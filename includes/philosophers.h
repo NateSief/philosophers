@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 17:31:45 by nate              #+#    #+#             */
-/*   Updated: 2024/08/10 08:13:18 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/12 13:44:55 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,12 +56,12 @@ typedef struct s_info
 {
 	char			limit;
 	char			started;
+	int				all_eaten;
+	int				isddead;
 	int				nb_philo;
 	int				t_die;
 	int				t_eat;
 	int				t_sleep;
-	int				isddead;
-	int				all_eaten;
 	t_mutex			printf;
 	t_mutex			simu_start;
 	t_mutex			info;
@@ -74,10 +74,13 @@ typedef struct s_philo
 	int				index;
 	int				num_meal;
 	long			meal;
+	int				t_die;
+	int				t_eat;
+	int				t_sleep;
 	pthread_t		*thread;
 	t_info			*info;
-	t_mutex			r_fork;
 	t_mutex			l_fork;
+	t_mutex			r_fork;
 } t_philo;
 /* ************************************************************************** */
 
