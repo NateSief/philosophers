@@ -6,7 +6,7 @@
 #    By: nate <nate@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/31 19:17:25 by nate              #+#    #+#              #
-#    Updated: 2024/08/07 07:29:00 by nate             ###   ########.fr        #
+#    Updated: 2024/08/10 08:17:07 by nate             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,15 +23,16 @@ SRCS = $(SRCS_DIR)/main.c		\
        $(SRCS_DIR)/monitor.c	\
 	   $(SRCS_DIR)/pars.c		\
 	   $(SRCS_DIR)/routine.c	\
+	   $(SRCS_DIR)/routine2.c	\
+	   $(SRCS_DIR)/debug.c	\
 
 OBJS = $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
 
+CC = cc
 CFLAGS = -Wall -Wextra -Werror -g3 -lpthread -I$(INCLUDES_DIR) 
 
-# Commande de compilation
-CC = gcc
-
-# Règles
+CFLAGS += -fsanitize=address
+# CFLAGS += -fsanitize=thread
 
 all: $(NAME)
 
