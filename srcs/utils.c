@@ -5,74 +5,98 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/02 17:49:40 by nate              #+#    #+#             */
-/*   Updated: 2024/08/11 07:59:38 by nate             ###   ########.fr       */
+/*   Created: 2024/08/16 19:32:32 by nate              #+#    #+#             */
+/*   Updated: 2024/08/17 21:31:34 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-//	Print the state of the philo
-int	print_log(t_philo *philo, int state)
+//	Convert a struct timeval into a long value
+long	ft_convert(struct timeval *to_convert)
 {
-	if (philo->info->isddead != -1 || philo->info->all_eaten)
-		return (1);
-	pthread_mutex_lock(philo->info->printf.mutex);
-	if (state == 1)
-		printf("%ld %d is eating %d\n", ft_time(philo->info), philo->index, philo->num_meal);
-	else if (state == 2)
-		printf("%ld %d is sleeping\n", ft_time(philo->info), philo->index);
-	else if (state == 3)
-		printf("%ld %d is thinking\n", ft_time(philo->info), philo->index);
-	else if (state == 4)
-		printf("%ld %d has taken a fork\n", \
-			ft_time(philo->info), philo->index);
-	else if (state == 5)
-		printf("%ld %d has taken a fork\n", \
-			ft_time(philo->info), philo->index);
-	else if (state == 6)
-		printf("%ld %d has free a fork\n", \
-			ft_time(philo->info), philo->index);
-	pthread_mutex_unlock(philo->info->printf.mutex);
-	return (0);
+	long	to_return;
+
+	to_return = to_convert->tv_sec * 1000 + to_convert->tv_usec / 1000;
+	return (to_return);
 }
 
-//	Convert struct timeval value into a long value
-long	convert_time(struct timeval *timestamp)
-{
-	return (timestamp->tv_sec * 1000 + timestamp->tv_usec / 1000);
-}
-
-//	Return the actual timestamp since the beggining of the simulation
+//	Get the actual time since the beggining of the simulation
 long	ft_time(t_info *info)
 {
 	struct timeval	actual;
-	long			return_val;
+	long			to_return;
 
 	if (gettimeofday(&actual, NULL) == -1)
-		ft_error(2, info);
-	return_val = actual.tv_sec * 1000 + actual.tv_usec / 1000;
-	return_val -= info->start.tv_sec * 1000 + info->start.tv_usec / 1000;
-	return (return_val);
+		return (ft_error(3, info));
+	to_return = ft_convert(&actual) - ft_convert(info->start);
+	return (to_return);
 }
 
-//	Simplified version of Atoi :
-//		- IF the number overfloat 	-> return -1
-//		- IF the number is negative	-> return -1
+//	Safe sleep function that check every 100 ms if the simulation is over or not
+//		If not, redo it until all the timer value is over
+int	ft_sleep(t_philo *philo, int value)
+{
+	int	loop;
+
+	loop = value * 10;
+	while (loop--)
+	{
+		usleep(100);
+		pthread_mutex_lock(philo->info->is_dead.mutex);
+		if (philo->info->is_dead.mutex)
+		{
+			pthread_mutex_unlock(philo->info->is_dead.mutex);
+			return (1);
+		}
+		pthread_mutex_unlock(philo->info->is_dead.mutex);
+	}
+	return (0);
+}
+
+void	print_log(int state_value, t_philo *philo)
+{
+	if (state_value == 1)
+		printf("%ld %d has taken a fork\n", ft_time(philo->info), philo->index);
+	else if (state_value == 2)
+	{
+		printf("%ld %d is eating\n", ft_time(philo->info), philo->index);
+		philo->meal_num++;
+	}
+	else if (state_value == 3)
+		printf("%ld %d is sleeping\n", ft_time(philo->info), philo->index);
+	else if (state_value == 4)
+		printf("%ld %d is thinking\n", ft_time(philo->info), philo->index);
+	else if (state_value == 5)
+		printf("%ld %d died\n", ft_time(philo->info), philo->index);
+	else if (state_value == 5)
+		printf("%ld %d all meals eat\n", ft_time(philo->info), philo->index);
+	return ;
+}
+
+//	Just transform and char version of an int into the int value
 int	ft_atoi(char *str)
 {
-	long	num;
+	int	nb;
+	int	sign;
 	int	i;
 
-	i = -1;
-	num = 0;
+	i = 0;
+	nb = 0;
+	sign = 0;
 	if (str[0] == '-')
-		return (-1);
+		sign = 1;
+	else if (str[0] == '+')
+		sign = 0;
+	else
+		i = -1;
 	while (str[++i])
 	{
-		num = num * 10 + str[i] - '0';
-		if (num > 2147483647 || num < 0)
+		nb = nb * 10 + (str[i] - '0');
+		if (nb >= 2147483647)
 			return (-1);
 	}
-	return ((int)num);
+	if (sign == 1)
+		return (-nb);
+	return (nb);
 }

@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 17:31:45 by nate              #+#    #+#             */
-/*   Updated: 2024/08/12 13:44:55 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/17 20:50:28 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,10 @@
 /* ************************************************************************** */
 /*									DEFINES									  */
 /* ************************************************************************** */
+
+# define CREATE_THREAD pthread_create(&info->philo_tab[i].thread, NULL, \
+		(void *)routine, (void *)(&info->philo_tab[i]));
+# define NUM_PHILO info->philo_num
 
 /* ************************************************************************** */
 
@@ -43,44 +47,55 @@ typedef struct s_mutex
 {
 	pthread_mutex_t	*mutex;
 	char			init;
+	int				value;
 } t_mutex;
 
 //	Stock of all the information of the program :
-//		- The tab of philosophers
-//		- Timers (Die - Eat - Sleep)
-//		- The limit of meals (-1 if there is no limit)
-//		- Mutexs (Printf - Starter)
-//		- Timestamp of the start of the simulation
-//		-
+//		- limit = is there a number of meal that stop the simulation ?
+//		- philo_num = number of philosophers in the simulation
+//		- t_die = time when the philo die if he hasn't eat
+//		- t_eat = time he takes to eat
+//		- t_sleep = time he takes to sleep
+//		- start = timer of the beggining of the simulation
+//		- printf = mutex to lock the printd and don't have mixed printf output
+//		- philo_tab = tab of all the philosophers I have
 typedef struct s_info
 {
-	char			limit;
-	char			started;
-	int				all_eaten;
-	int				isddead;
-	int				nb_philo;
-	int				t_die;
-	int				t_eat;
-	int				t_sleep;
-	t_mutex			printf;
-	t_mutex			simu_start;
-	t_mutex			info;
-	t_philo			*philo_tab;
-	struct timeval	start;
+	int					dead_philo;
+	int					limit;
+	int					philo_num;
+	int					t_die;
+	int					t_eat;
+	int					t_sleep;
+	struct timeval		*start;
+	t_mutex				is_dead;
+	t_mutex				printf;
+	t_philo				*philo_tab;
 } t_info;
 
+// Stock of all the informations of each philosopher
+//		- index = id of the philo in the simulation
+//		- meal_num = number of meals the philosopher has eat during the simu
+//		- t_die = time after a meal where a philo will die
+//		- t_eat = time a philo will take to eat
+//		- t_sleep = time a philo will take to sleep
+//		- last_meal = timer of his last meal
+//		- thread = contain a pointer on the thread
+//		- is_dead = if the philo is dead, it goes to one via a monitor action
+//		- r_fork = his fork
+//		- l_fork = the fork of his neigbour
 typedef struct s_philo
 {
-	int				index;
-	int				num_meal;
-	long			meal;
-	int				t_die;
-	int				t_eat;
-	int				t_sleep;
-	pthread_t		*thread;
-	t_info			*info;
-	t_mutex			l_fork;
-	t_mutex			r_fork;
+	int			index;
+	int			meal_num;
+	int			t_die;
+	int			t_eat;
+	int			t_sleep;
+	long		last_meal;
+	pthread_t	thread;
+	t_info		*info;
+	t_mutex		r_fork;
+	t_mutex		*l_fork;
 } t_philo;
 /* ************************************************************************** */
 
@@ -89,33 +104,37 @@ typedef struct s_philo
 /* ************************************************************************** */
 /* main.c 		*/
 
-/* error.c		*/
+/*	ft_init.c	*/
 
-int		ft_error(int error_code, t_info *infos);
-/* utils.c		*/
-
-int		ft_atoi(char *str);
-long	ft_time(t_info *info);
-long	convert_time(struct timeval *timestamp);
-int		print_log(t_philo *philo, int state);
-/* init.c		*/
-
-int	init_philo(t_info *info);
-/* pars.c		*/
+int		ft_init(t_info *info);
+/*	ft_pars.c	*/
 
 int		ft_pars(char **av, t_info *info);
-/* routine.c	*/
+/* ft_error.c 	*/
 
-int		ft_sleep(int timer, t_philo *philo);
-void	lock_forks(t_philo *philo);
-void	unlock_forks(t_philo *philo);
+int		ft_error(int error_code, t_info *info);
+/*	routine.c	*/
+
 void	*routine(void *arg);
-/* routine2.c	*/
+int		ft_need_stop(t_philo *philo);
+/*	monitor.c	*/
 
-int		routine_2(t_philo *philo);
-/* monitor.c	*/
+int		monitor(t_info *info);
+/*	monitor.c	*/
 
-int	monitor(t_info *info);
+long	ft_convert(struct timeval *to_convert);
+long	ft_time(t_info *info);
+/*	utils.c		*/
+
+void	print_log(int state_value, t_philo *philo);
+int		ft_sleep(t_philo *philo, int value);
+long	ft_time(t_info *info);
+long	ft_convert(struct timeval *to_convert);
+int		ft_atoi(char *str);
+/*	ft_eat.c	*/
+
+void	routine_eat(t_philo *philo);
+
 /* ************************************************************************** */
 
 /* ************************************************************************** */

@@ -5,84 +5,62 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/04 21:19:35 by nate              #+#    #+#             */
-/*   Updated: 2024/08/12 13:35:02 by nate             ###   ########.fr       */
+/*   Created: 2024/08/12 19:56:01 by nate              #+#    #+#             */
+/*   Updated: 2024/08/17 21:02:22 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-
-int	ft_sleep(int timer, t_philo *philo)
+//	Tells if the philosopher has to stop or not
+int		ft_need_stop(t_philo *philo)
 {
-	timer *= 2;
-	while (timer-- && philo->info->isddead == -1 && !philo->info->all_eaten)
-		usleep(500);
-	if (philo->info->isddead != -1 || philo->info->all_eaten)
-	{
-		pthread_mutex_unlock(philo->info->info.mutex);
-		return (1);
-	}	
-	pthread_mutex_unlock(philo->info->info.mutex);
-	return (0);
+	pthread_mutex_lock(philo->info->is_dead.mutex);
+    if (philo->info->is_dead.value != -1)
+    {
+        pthread_mutex_unlock(philo->info->is_dead.mutex);
+        return (1);
+    }
+    pthread_mutex_unlock(philo->info->is_dead.mutex);
+    return (0);
+
 }
 
-// Lock the forks for the philos, BUT:
-//		- If there is only one philo in the simu, it has another behaviour
-//			because it's an edge case and it manualy handle it
-void	lock_forks(t_philo *philo)
+//	Sleep function that make the philosopher sleep
+void	routine_sleep(t_philo *philo)
 {
-	if (philo->info->nb_philo == 1)
-	{
-		pthread_mutex_lock(philo->r_fork.mutex);
-		print_log(philo, 4);
-		ft_sleep(philo->info->t_die, philo);
-		pthread_mutex_unlock(philo->r_fork.mutex);
-		return ;
-	}
-	if (philo->index % 2)
-	{
-		pthread_mutex_lock(philo->r_fork.mutex);
-		print_log(philo, 4);
-		pthread_mutex_lock(philo->l_fork.mutex);
-		print_log(philo, 5);
-	}
-	else
-	{
-		pthread_mutex_lock(philo->l_fork.mutex);	
-		print_log(philo, 5);
-		pthread_mutex_lock(philo->r_fork.mutex);
-		print_log(philo, 4);
-	}
+	print_log(2, philo);
+	pthread_mutex_lock(philo->info->printf.mutex);
+	ft_sleep(philo, philo->t_sleep);
+	pthread_mutex_unlock(philo->info->printf.mutex);
 }
 
-void	unlock_forks(t_philo *philo)
+//	Think function that make the philosopher think
+void	routine_think(t_philo *philo)
 {
-	pthread_mutex_unlock(philo->r_fork.mutex);
-	print_log(philo, 6);
-	pthread_mutex_unlock(philo->l_fork.mutex);
-	print_log(philo, 6);
+	pthread_mutex_lock(philo->info->printf.mutex);
+	print_log(3, philo);
+	pthread_mutex_unlock(philo->info->printf.mutex);
 }
 
+//	Just a lopp where the philo eat, sleep and think and check beneath that if
+//		the simulation should keep going
 void	*routine(void *arg)
 {
-	t_philo	*philo;
-	int		 i = 0;
+	t_philo *philo;
 
-	philo = (t_philo *)arg;
-	pthread_mutex_lock(philo->info->simu_start.mutex);
-	pthread_mutex_unlock(philo->info->simu_start.mutex);
-	if (philo->index % 2)
-		usleep(1);
-	pthread_mutex_lock(philo->info->info.mutex);
-	while (philo->info->isddead == -1)
+	philo = (t_philo*) arg;
+	while (1)
 	{
-		pthread_mutex_unlock(philo->info->info.mutex);
-		i++;
-		if (routine_2(philo))
-			break;
-		pthread_mutex_lock(philo->info->info.mutex);
+		routine_eat(philo);
+		if (ft_need_stop(philo))
+			break ;
+		routine_sleep(philo);
+		if (ft_need_stop(philo))
+			break ;
+		routine_think(philo);
+		if (ft_need_stop(philo))
+			break ;
 	}
-	pthread_mutex_unlock(philo->info->info.mutex);
 	return (NULL);
 }

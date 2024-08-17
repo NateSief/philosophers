@@ -6,7 +6,7 @@
 #    By: nate <nate@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/31 19:17:25 by nate              #+#    #+#              #
-#    Updated: 2024/08/10 08:17:07 by nate             ###   ########.fr        #
+#    Updated: 2024/08/17 19:48:17 by nate             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,22 +16,22 @@ SRCS_DIR = srcs
 OBJS_DIR = objs
 INCLUDES_DIR = includes
 
-SRCS = $(SRCS_DIR)/main.c		\
-       $(SRCS_DIR)/error.c		\
-       $(SRCS_DIR)/utils.c		\
-       $(SRCS_DIR)/init.c		\
-       $(SRCS_DIR)/monitor.c	\
-	   $(SRCS_DIR)/pars.c		\
-	   $(SRCS_DIR)/routine.c	\
-	   $(SRCS_DIR)/routine2.c	\
-	   $(SRCS_DIR)/debug.c	\
+SRCS =	$(SRCS_DIR)/main.c		\
+		$(SRCS_DIR)/ft_eat.c	\
+    	$(SRCS_DIR)/ft_error.c	\
+    	$(SRCS_DIR)/utils.c		\
+    	$(SRCS_DIR)/ft_init.c	\
+    	$(SRCS_DIR)/monitor.c	\
+		$(SRCS_DIR)/ft_pars.c	\
+		$(SRCS_DIR)/routine.c	\
+		debug.c					\
 
 OBJS = $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -g3 -lpthread -I$(INCLUDES_DIR) 
 
-CFLAGS += -fsanitize=address
+# CFLAGS += -fsanitize=address
 # CFLAGS += -fsanitize=thread
 
 all: $(NAME)
