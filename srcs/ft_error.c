@@ -22,12 +22,15 @@ static void	ft_clear_simu(t_info *info)
 		if (info->philo_tab[i].r_fork.init)
 		{
 			pthread_mutex_destroy(info->philo_tab[i].r_fork.mutex);
+			info->philo_tab[i].r_fork.init = 0;
 			free(info->philo_tab[i].r_fork.mutex);
 		}
 		else
 			break;
-		pthread_join(info->philo_tab[i].thread, NULL);
 	}
+	i = -1;
+	while (++i < info->philo_num)
+		pthread_join(info->philo_tab[i].thread, NULL);
 }
 
 // int	ft_error_2(int error_code)
@@ -48,20 +51,22 @@ int	ft_who_died(t_info *info)
 
 int	ft_error(int error_code, t_info *info)
 {
+	pthread_mutex_lock(info->printf.mutex);
 	ft_clear_simu(info);
 	if (error_code == 1)
-		return (printf("ERROR\nNot the good amount of arguments\n"));
+		printf("ERROR\nNot the good amount of arguments\n");
 	else if (error_code == 2)
-		return (printf("ERROR\nThe args are not valid\n"));
+		printf("ERROR\nThe args are not valid\n");
 	else if (error_code == 3)
-		return (printf("Error\nBad malloc\n"));
+		printf("Error\nBad malloc\n");
 	else if (error_code == 4)
-		return (printf("Error\nGetTimeOfDay Bad allocation\n"));
+		printf("Error\nGetTimeOfDay Bad allocation\n");
 	else if (error_code == 5)
-		return (printf("Error\nPTHREAD_MUTEX INIT ERROR"));
+		printf("Error\nPTHREAD_MUTEX INIT ERROR");
 	else if (error_code == 6)
-		return (printf("%ld %d died\n", ft_time(info), ft_who_died(info)));
+		printf("%ld %d died\n", ft_time(info), ft_who_died(info));
 	else if (error_code == 7)
-		return (printf("All philosopher have eat all their meals\n"));
+		printf("All philosopher have eat all their meals\n");
+	pthread_mutex_unlock(info->printf.mutex);
 	return (0);
 }

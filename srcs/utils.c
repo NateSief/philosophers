@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 19:32:32 by nate              #+#    #+#             */
-/*   Updated: 2024/08/17 21:31:34 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/22 15:43:37 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,12 @@ int	ft_sleep(t_philo *philo, int value)
 {
 	int	loop;
 
-	loop = value * 10;
+	loop = value * 1000 / 500;
 	while (loop--)
 	{
-		usleep(100);
+		usleep(500);
 		pthread_mutex_lock(philo->info->is_dead.mutex);
-		if (philo->info->is_dead.mutex)
+		if (philo->info->is_dead.value != -1)
 		{
 			pthread_mutex_unlock(philo->info->is_dead.mutex);
 			return (1);
@@ -59,10 +59,7 @@ void	print_log(int state_value, t_philo *philo)
 	if (state_value == 1)
 		printf("%ld %d has taken a fork\n", ft_time(philo->info), philo->index);
 	else if (state_value == 2)
-	{
-		printf("%ld %d is eating\n", ft_time(philo->info), philo->index);
-		philo->meal_num++;
-	}
+		printf("%ld %d is eating %d \n", ft_time(philo->info), philo->index, philo->meal_num);
 	else if (state_value == 3)
 		printf("%ld %d is sleeping\n", ft_time(philo->info), philo->index);
 	else if (state_value == 4)

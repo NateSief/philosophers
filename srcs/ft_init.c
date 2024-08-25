@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 21:32:14 by nate              #+#    #+#             */
-/*   Updated: 2024/08/17 21:00:11 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/25 08:22:59 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,9 @@ int	ft_give_forks(t_info *info)
 			info->philo_tab[i].l_fork = &info->philo_tab[NUM_PHILO - 1].r_fork;
 		else
 			info->philo_tab[i].l_fork = &info->philo_tab[i - 1].r_fork;
-		printf("philo n.%d received l_forks from philo n.%d\n", i, i - 1);
-		printf("l_fork adress is : %p\n\n", info->philo_tab[i].l_fork);
-		if (i == 0)
-			printf("r_fork adress is : %p\n\n", &info->philo_tab[NUM_PHILO - 1].r_fork);
-		else
-			printf("r_fork adress is : %p\n\n", &info->philo_tab[i - 1].r_fork);
+		info->philo_tab[i].t_die = info->t_die;
+		info->philo_tab[i].t_eat = info->t_eat;
+		info->philo_tab[i].t_sleep = info->t_sleep;
 	}
 	return (0);
 }
@@ -49,10 +46,7 @@ int	ft_init_forks(t_info *info)
 			return (ft_error(5, info));
 		}
 		else
-		{
 			info->philo_tab[i].r_fork.init = 1;
-		}
-		info->philo_tab[i].r_fork.init = 1;
 	}
 	return (ft_give_forks(info));
 }

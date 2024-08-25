@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/12 19:58:33 by nate              #+#    #+#             */
-/*   Updated: 2024/08/17 22:02:20 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/25 08:29:20 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,15 +33,20 @@ int	alleaten(t_info *info)
 //		Return -1 if not
 int	isdead(t_info *info)
 {
-	int	dead;
-	pthread_mutex_lock(info->is_dead.mutex);
-	if (info->is_dead.value != -1)
+	int	i ;
+	
+	i = -1;
+	while (++i < info->philo_num)
 	{
-		dead = info->is_dead.value;
-		pthread_mutex_unlock(info->is_dead.mutex);
-		return (dead);
+		if (info->philo_tab[i].last_meal + info->t_die < ft_time(info))
+		{
+			pthread_mutex_lock(info->is_dead.mutex);
+			info->is_dead.value = i;
+			info->dead_philo = i;
+			pthread_mutex_unlock(info->is_dead.mutex);
+			return (i);
+		}
 	}
-	pthread_mutex_unlock(info->is_dead.mutex);
 	return (-1);
 }
 

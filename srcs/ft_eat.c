@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 19:10:46 by nate              #+#    #+#             */
-/*   Updated: 2024/08/17 20:58:54 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/25 08:30:42 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,18 +26,19 @@ int    philo_l_fork(t_philo *philo)
 
 int    philo_r_fork(t_philo *philo)
 {
-    if (!ft_need_stop(philo))
+    if (ft_need_stop(philo))
     {
         pthread_mutex_unlock(philo->l_fork->mutex);
         return (0);
     }
-    pthread_mutex_lock(philo->r_fork.mutex);
     pthread_mutex_lock(philo->info->printf.mutex);
     if (!ft_need_stop(philo) && philo->meal_num < philo->info->limit)
     {
+	    pthread_mutex_lock(philo->r_fork.mutex);
 		print_log(1, philo);
 		print_log(2, philo);
 	}
+	pthread_mutex_unlock(philo->info->printf.mutex);
     return (1);
 }
 
@@ -50,15 +51,12 @@ void	routine_eat(t_philo *philo)
 		if (philo_r_fork(philo))
 		{
 			philo->last_meal = ft_time(philo->info);
-			print_log(1, philo);
 			ft_sleep(philo, philo->t_eat);
 			philo->meal_num++;
 			pthread_mutex_unlock(philo->l_fork->mutex);
 			pthread_mutex_unlock(philo->r_fork.mutex);
 		}
 		else
-		{
 			pthread_mutex_unlock(philo->l_fork->mutex);
-		}
 	}
 }
