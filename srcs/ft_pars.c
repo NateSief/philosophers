@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 21:30:33 by nate              #+#    #+#             */
-/*   Updated: 2024/08/17 21:30:00 by nate             ###   ########.fr       */
+/*   Updated: 2024/08/25 07:36:14 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,5 @@ int	ft_pars(char **av, t_info *info)
 		info->printf.init = 0;
 		return (ft_error(5, info));
 	}
-	
 	return (ft_pars_next(info));
 }
