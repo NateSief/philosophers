@@ -5,62 +5,53 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/12 19:58:33 by nate              #+#    #+#             */
-/*   Updated: 2024/08/25 08:29:20 by nate             ###   ########.fr       */
+/*   Created: 2024/09/16 15:48:55 by nate              #+#    #+#             */
+/*   Updated: 2024/09/17 14:11:08 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-//	Check if all the philosopher have eat
-//		- Return 1 if they have all eat
-//		- Return 0 if not
-int	alleaten(t_info *info)
+//	Simple loop that goes across all the philosopher to check if one of them
+//		hasn't eat all his meal
+static int	ft_meals_check(t_info *info)
 {
 	int	i;
 
 	i = -1;
-	while (++i < info->philo_num)
+	while (++i < info->nb_philo)
 	{
-		if (info->philo_tab[i].meal_num < info->limit)
+		if (info->philo_tab->meal_num < info->limit || info->limit <= 0)
 			return (0);
 	}
 	return (1);
 }
 
-// Check if a philosopher has died
-//		If a philo have die, it return his id
-//		Return -1 if not
-int	isdead(t_info *info)
+//	Simple loop that goes across all the philosophers to check if one of them
+//		died because of starving
+static int	ft_is_dead(t_info *info)
 {
-	int	i ;
-	
-	i = -1;
-	while (++i < info->philo_num)
+	pthread_mutex_lock(&info->is_dead.mutex);
+	if (info->is_dead.value != -1)
 	{
-		if (info->philo_tab[i].last_meal + info->t_die < ft_time(info))
-		{
-			pthread_mutex_lock(info->is_dead.mutex);
-			info->is_dead.value = i;
-			info->dead_philo = i;
-			pthread_mutex_unlock(info->is_dead.mutex);
-			return (i);
-		}
+		pthread_mutex_unlock(&info->is_dead.mutex);
+		return (1);
 	}
-	return (-1);
+	pthread_mutex_unlock(&info->is_dead.mutex);
+	return (0);
 }
 
-//	Just a while loop that that check if a philo has died or if they have all
-//		eat
+//	While loop that check if I have a dead philo or if they have all ate there
+//		meals
 int	monitor(t_info *info)
 {
 	while (1)
 	{
-		if (isdead(info) != -1)
-			return (ft_error(6, info));
-		else if (alleaten(info))
-			return (ft_error(7, info));
+		// printf("LOOP MONITOR\n");
+		if (ft_meals_check(info))
+			return (ft_error(4, info));
+		if (ft_is_dead(info))
+			return (ft_error(5, info));
 		usleep(500);
 	}
-	return (1);
 }

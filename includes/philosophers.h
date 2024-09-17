@@ -1,30 +1,20 @@
 /* ************************************************************************** */
-/*                                                                            */
+/*																			  */
 /*                                                        :::      ::::::::   */
 /*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/02 17:31:45 by nate              #+#    #+#             */
-/*   Updated: 2024/08/25 08:31:02 by nate             ###   ########.fr       */
-/*                                                                            */
+/*   Created: 2024/09/15 15:19:41 by nate              #+#    #+#             */
+/*   Updated: 2024/09/15 15:22:28 by nate             ###   ########.fr       */
+/*																			  */
 /* ************************************************************************** */
+
 
 #ifndef PHILOSOPHERS_H
 # define PHILOSOPHERS_H
-
 /* ************************************************************************** */
-/*									DEFINES									  */
-/* ************************************************************************** */
-
-# define CREATE_THREAD pthread_create(&info->philo_tab[i].thread, NULL, \
-		(void *)routine, (void *)(&info->philo_tab[i]));
-# define NUM_PHILO info->philo_num
-
-/* ************************************************************************** */
-
-/* ************************************************************************** */
-/*									INCLUDES								  */
+/*								INCLUDES									  */
 /* ************************************************************************** */
 # include <stdio.h>
 # include <stdlib.h>
@@ -34,118 +24,112 @@
 # include <string.h>
 # include <errno.h>
 /* ************************************************************************** */
-
+/*								 DEFINES									  */
 /* ************************************************************************** */
-/*									STRUCTURES								  */
+# ifndef PHILO_MAX
+#  define PHILO_MAX 200
+# endif // PHILO_MAX
+
+# ifndef DEBUG_MOD
+#  define DEBUG_MOD 0
+# endif // DEBUG_MOD
+
+# ifndef COULEURS_H
+#  define COULEURS_H
+
+// Couleurs de texte
+#  define RESET        "\033[0m"      // Reset
+#  define BLACK        "\033[30m"     // Noir
+#  define RED          "\033[31m"     // Rouge
+#  define GREEN        "\033[32m"     // Vert
+#  define YELLOW       "\033[33m"     // Jaune
+#  define BLUE         "\033[34m"     // Bleu
+#  define MAGENTA      "\033[35m"     // Magenta
+#  define CYAN         "\033[36m"     // Cyan
+#  define WHITE        "\033[37m"     // Blanc
+
+// Couleurs de fond
+#  define BG_BLACK     "\033[40m"     // Fond Noir
+#  define BG_RED       "\033[41m"     // Fond Rouge
+#  define BG_GREEN     "\033[42m"     // Fond Vert
+#  define BG_YELLOW    "\033[43m"     // Fond Jaune
+#  define BG_BLUE      "\033[44m"     // Fond Bleu
+#  define BG_MAGENTA   "\033[45m"     // Fond Magenta
+#  define BG_CYAN      "\033[46m"     // Fond Cyan
+#  define BG_WHITE     "\033[47m"     // Fond Blanc
+
+// Styles de texte
+#  define BOLD         "\033[1m"      // Gras
+#  define UNDERLINE    "\033[4m"      // Souligné
+#  define INVERSE      "\033[7m"      // Inversé (couleur de fond et texte)
+
+# endif /* COULEURS_H */
+/* ************************************************************************** */
+/*								STUCTURES									  */
 /* ************************************************************************** */
 
-typedef struct s_philo t_philo;
+typedef struct s_info t_info;
 
-//	Allow me to know if my mutex has been initialized or not, and then don't
-//		try to destroy an uninitialized mutex
 typedef struct s_mutex
 {
-	pthread_mutex_t	*mutex;
-	char			init;
+	pthread_mutex_t	mutex;
 	int				value;
 } t_mutex;
 
-//	Stock of all the information of the program :
-//		- limit = is there a number of meal that stop the simulation ?
-//		- philo_num = number of philosophers in the simulation
-//		- t_die = time when the philo die if he hasn't eat
-//		- t_eat = time he takes to eat
-//		- t_sleep = time he takes to sleep
-//		- start = timer of the beggining of the simulation
-//		- printf = mutex to lock the printd and don't have mixed printf output
-//		- philo_tab = tab of all the philosophers I have
-typedef struct s_info
-{
-	int					dead_philo;
-	int					limit;
-	int					philo_num;
-	int					t_die;
-	int					t_eat;
-	int					t_sleep;
-	struct timeval		*start;
-	t_mutex				is_dead;
-	t_mutex				printf;
-	t_philo				*philo_tab;
-} t_info;
-
-// Stock of all the informations of each philosopher
-//		- index = id of the philo in the simulation
-//		- meal_num = number of meals the philosopher has eat during the simu
-//		- t_die = time after a meal where a philo will die
-//		- t_eat = time a philo will take to eat
-//		- t_sleep = time a philo will take to sleep
-//		- last_meal = timer of his last meal
-//		- thread = contain a pointer on the thread
-//		- is_dead = if the philo is dead, it goes to one via a monitor action
-//		- r_fork = his fork
-//		- l_fork = the fork of his neigbour
 typedef struct s_philo
 {
-	int			index;
-	int			meal_num;
+	int			id;
 	int			t_die;
 	int			t_eat;
 	int			t_sleep;
+	int			meal_num;
 	long		last_meal;
-	pthread_t	thread;
 	t_info		*info;
-	t_mutex		r_fork;
 	t_mutex		*l_fork;
+	t_mutex		*r_fork;
+	pthread_t	thread;
 } t_philo;
+
+typedef struct s_info
+{
+	int			nb_philo;
+	int			t_die;
+	int			t_eat;
+	int			t_sleep;
+	int			limit;
+	int			active_threads;
+	long		start;
+	t_mutex		printf;
+	t_mutex		info;
+	t_mutex		is_dead;
+	t_mutex		*forks;
+	t_philo		*philo_tab;
+} t_info;
+/* ************************************************************************** */
+/*								PROTOTYPES									  */
 /* ************************************************************************** */
 
-/* ************************************************************************** */
-/*									PROTOTYPES								  */
-/* ************************************************************************** */
-/* main.c 		*/
-
-/*	ft_init.c	*/
-
-int		ft_init(t_info *info);
-/*	ft_pars.c	*/
-
-int		ft_pars(char **av, t_info *info);
-/* ft_error.c 	*/
-
-int		ft_error(int error_code, t_info *info);
-/*	routine.c	*/
-
-void	*routine(void *arg);
-int		ft_need_stop(t_philo *philo);
-/*	monitor.c	*/
-
-int		monitor(t_info *info);
-/*	monitor.c	*/
-
-long	ft_convert(struct timeval *to_convert);
-long	ft_time(t_info *info);
-/*	utils.c		*/
-
-void	print_log(int state_value, t_philo *philo);
-int		ft_sleep(t_philo *philo, int value);
-long	ft_time(t_info *info);
-long	ft_convert(struct timeval *to_convert);
+int		ft_error(int code, t_info *info);
+int		ft_init(t_info *info, char **av);
 int		ft_atoi(char *str);
-/*	ft_eat.c	*/
-
-void	routine_eat(t_philo *philo);
-
+int		ft_pars(t_info *info);
+int		ft_need_stop(t_philo *philo);
+int		ft_routine_eat(t_philo *philo);
+int		ft_sleep(int timer, t_philo *philo);
+int		monitor(t_info *info);
+long	ft_get_time(t_info *info);
+long	timestamp(void);
+void	print_log(int state, t_philo *philo);
+void	*routine(void *arg);
+/* ************************************************************************** */
+/*								  DEBUG 									  */
 /* ************************************************************************** */
 
-/* ************************************************************************** */
-/*									DEBUG SHIT								  */
-/* ************************************************************************** */
 
+int 	my_lock(pthread_mutex_t *mutex, const char *mutex_name, const char *func, int line);
+int		my_unlock(pthread_mutex_t *mutex, const char *mutex_name, const char *func, int line);
 
-int my_pthread_mutex_lock(pthread_mutex_t *mutex, const char *mutex_name, const char *func, int line);
-int my_pthread_mutex_unlock(pthread_mutex_t *mutex, const char *mutex_name, const char *func, int line);
-
-// # define pthread_mutex_lock(mutex) my_pthread_mutex_lock(mutex, #mutex, __FUNCTION__, __LINE__)
-// # define pthread_mutex_unlock(mutex) my_pthread_mutex_unlock(mutex, #mutex, __FUNCTION__, __LINE__)
+// # define pthread_mutex_lock(mutex) my_lock(mutex, #mutex, __func__, __LINE__)
+// # define pthread_mutex_unlock(mutex) my_unlock(mutex, #mutex, __func__, __LINE__)
 
 #endif

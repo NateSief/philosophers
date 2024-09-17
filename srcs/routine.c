@@ -5,75 +5,77 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/12 19:56:01 by nate              #+#    #+#             */
-/*   Updated: 2024/08/25 08:31:13 by nate             ###   ########.fr       */
+/*   Created: 2024/09/16 10:35:11 by nate              #+#    #+#             */
+/*   Updated: 2024/09/17 14:05:44 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-//	Tells if the philosopher has to stop or not
-int		ft_need_stop(t_philo *philo)
+// Check if a philo died or if this philo died of starving
+int	ft_need_stop(t_philo *philo)
 {
-	pthread_mutex_lock(philo->info->is_dead.mutex);
-	if (philo->info->is_dead.value != -1)
+	if (philo->last_meal + philo->t_die < timestamp() - philo->info->start)
 	{
-		pthread_mutex_unlock(philo->info->is_dead.mutex);
+		printf("%ld PHILO %d DIED OF STARVING\n", ft_get_time(philo->info), philo->id);
+		pthread_mutex_lock(&philo->info->is_dead.mutex);
+		philo->info->is_dead.value = philo->id;
+		pthread_mutex_unlock(&philo->info->is_dead.mutex);
 		return (1);
 	}
-	pthread_mutex_unlock(philo->info->is_dead.mutex);
-	pthread_mutex_lock(philo->r_fork.mutex);
-	if (!philo->r_fork.init)
+	pthread_mutex_lock(&philo->info->is_dead.mutex);
+	if (philo->info->is_dead.value != -2 && philo->info->is_dead.value != -1)
 	{
-		pthread_mutex_unlock(philo->r_fork.mutex);
+		printf("IS_DEAD VALUE ERROR\n");
+		pthread_mutex_unlock(&philo->info->is_dead.mutex);
 		return (1);
 	}
-	pthread_mutex_unlock(philo->r_fork.mutex);
+	pthread_mutex_unlock(&philo->info->is_dead.mutex);
 	return (0);
-
 }
 
-//	Sleep function that make the philosopher sleep
-void	routine_sleep(t_philo *philo)
+//	Sleep routine function -> Make the philosopher sleep, and if there is an
+//		error it will return 1, else 0;
+static int	ft_routine_sleep(t_philo *philo)
 {
-	pthread_mutex_lock(philo->info->printf.mutex);
+	pthread_mutex_lock(&philo->info->printf.mutex);
 	print_log(3, philo);
-	pthread_mutex_unlock(philo->info->printf.mutex);
-	ft_sleep(philo, philo->t_sleep);
+	pthread_mutex_unlock(&philo->info->printf.mutex);
+	if (ft_sleep(philo->t_sleep, philo))
+		return (1);
+	return (0);
 }
 
-//	Think function that make the philosopher think
-void	routine_think(t_philo *philo)
+//	Think routine function -> print the thinking message, and if there is an
+//		error it will return 1, else 0;
+static int	ft_routine_think(t_philo *philo)
 {
-	pthread_mutex_lock(philo->info->printf.mutex);
-	print_log(3, philo);
-	pthread_mutex_unlock(philo->info->printf.mutex);
+	pthread_mutex_lock(&philo->info->printf.mutex);
+	print_log(4, philo);
+	pthread_mutex_unlock(&philo->info->printf.mutex);
+	return (0);
 }
 
-//	Just a lopp where the philo eat, sleep and think and check beneath that if
-//		the simulation should keep going
+//	Routine for the philosophers to eat, sleep then think
 void	*routine(void *arg)
 {
-	t_philo *philo;
-	int		i;
-
-	i = 1;
-	philo = (t_philo*) arg;
-	usleep(philo->index % 2 * 500);
-	while (i)
+	t_philo	philo;
+	
+	philo = *(t_philo *)arg;
+	usleep(philo.id % 2 * 2000);
+	while (1)
 	{
-		if (ft_need_stop(philo))
+		if (ft_routine_eat(&philo) || ft_need_stop(&philo))
 			break;
-		routine_eat(philo);
-		if (ft_need_stop(philo))
-			break ;
-		routine_sleep(philo);
-		if (ft_need_stop(philo))
-			break ;
-		routine_think(philo);
-		if (ft_need_stop(philo))
-			break ;
+		if (ft_routine_sleep(&philo) || ft_need_stop(&philo))
+			break;
+		if (ft_routine_think(&philo) || ft_need_stop(&philo))
+			break;
 	}
-	// printf("LEAVE ROUTINE\n");
+	if (ft_need_stop(&philo))
+		printf("SORTIE ROUTINE %d\n", philo.id);
+	pthread_mutex_lock(&philo.info->info.mutex);
+	philo.info->active_threads--;
+	pthread_mutex_unlock(&philo.info->info.mutex);
 	return (NULL);
 }
