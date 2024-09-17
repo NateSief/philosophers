@@ -5,89 +5,75 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/10 21:32:14 by nate              #+#    #+#             */
-/*   Updated: 2024/08/25 08:22:59 by nate             ###   ########.fr       */
+/*   Created: 2024/09/15 15:44:15 by nate              #+#    #+#             */
+/*   Updated: 2024/09/17 13:58:17 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-int	ft_give_forks(t_info *info)
+//	While loop that init the forks mutexes
+static int	init_forks(t_info *info)
 {
 	int	i;
 
 	i = -1;
-	while (++i < info->philo_num)
+	while (++i < PHILO_MAX)
 	{
-		if (i == 0)
-			info->philo_tab[i].l_fork = &info->philo_tab[NUM_PHILO - 1].r_fork;
-		else
-			info->philo_tab[i].l_fork = &info->philo_tab[i - 1].r_fork;
-		info->philo_tab[i].t_die = info->t_die;
-		info->philo_tab[i].t_eat = info->t_eat;
-		info->philo_tab[i].t_sleep = info->t_sleep;
+		if (pthread_mutex_init(&info->forks[i].mutex, NULL) == -1)
+			return (1);
 	}
 	return (0);
 }
 
-int	ft_init_forks(t_info *info)
+//	While loop that init the philo informations
+static int	init_philos(t_info *info)
 {
 	int	i;
 
 	i = -1;
-	while (++i < info->philo_num)
+	while (++i < PHILO_MAX)
 	{
-		info->philo_tab[i].r_fork.mutex = malloc(sizeof(pthread_mutex_t));
-		if (!info->philo_tab[i].r_fork.mutex)
-			return(ft_error(4, info));
-		if (pthread_mutex_init(info->philo_tab[i].r_fork.mutex, NULL) == -1)
-		{
-			info->philo_tab[i].r_fork.init = 0;
-			return (ft_error(5, info));
-		}
+		if (i == 0)
+			info->philo_tab[i].l_fork = &info->forks[info->nb_philo];
 		else
-			info->philo_tab[i].r_fork.init = 1;
-	}
-	return (ft_give_forks(info));
-}
-
-int	ft_init_2(t_info *info)
-{
-	info->printf.mutex = malloc(sizeof(pthread_mutex_t));
-	if (!info->printf.mutex)
-		return (ft_error(3, info));
-	if (pthread_mutex_init(info->printf.mutex, NULL) == -1)
-	{
-		info->printf.init = 0;
-		return (ft_error(5, info));
-	}
-	return (ft_init_forks(info));
-}
-
-int	ft_init(t_info *info)
-{
-	int	i;
-
-	i = -1;
-	info->is_dead.mutex = malloc(sizeof(pthread_mutex_t));
-	if (!info->is_dead.mutex)
-		return (ft_error(3, info));
-	if (pthread_mutex_init(info->is_dead.mutex, NULL) == -1)
-	{
-		info->is_dead.init = 0;
-		return (ft_error(5, info));
-	}
-	else
-	{
-		info->is_dead.init = 1;
-		info->is_dead.value = -1;
-	}
-	while (++i < info->philo_num)
-	{
-		info->philo_tab[i].index = i;
-		info->philo_tab[i].meal_num = 0;
-		info->philo_tab[i].last_meal = ft_convert(info->start);
+			info->philo_tab[i].l_fork = &info->forks[i - 1];
+		info->philo_tab[i].r_fork = &info->forks[i];
+		info->philo_tab[i].id = i;
 		info->philo_tab[i].info = info;
+		info->philo_tab[i].last_meal = 0;
+		info->philo_tab[i].meal_num = 0;
+		info->philo_tab[i].t_die = info->t_die;
+		info->philo_tab[i].t_eat = info->t_eat;
+		info->philo_tab[i].t_sleep = info->t_eat;
 	}
-	return (ft_init_2(info));
+	return (0);
+}
+
+//	Init all the informations, the mutexes and the timeval struct
+int	ft_init(t_info *info, char **av)
+{
+	info->nb_philo = ft_atoi(av[1]);
+	info->t_die = ft_atoi(av[2]);
+	info->t_eat = ft_atoi(av[3]);
+	info->t_sleep = ft_atoi(av[4]);
+	info->limit = -2;
+	if (av[5])
+		info->limit = ft_atoi(av[5]);
+	info->active_threads = 0;
+	if (pthread_mutex_init(&info->printf.mutex, NULL) == -1)
+		return (ft_error(3, info));
+	else
+		info->printf.value = 0;
+	if (pthread_mutex_init(&info->info.mutex, NULL) == -1)
+		return (ft_error(3, info));
+	else
+		info->info.value = 0;
+	if (pthread_mutex_init(&info->is_dead.mutex, NULL) == -1)
+		return (ft_error(3, info));
+	else
+		info->is_dead.value = -1;
+	if (init_forks(info) || init_philos(info))
+		return (ft_error(3, info));
+	return (0);
 }
