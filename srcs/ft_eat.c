@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 11:34:51 by nate              #+#    #+#             */
-/*   Updated: 2024/09/17 14:41:11 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/19 13:34:36 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,10 @@ int	ft_routine_eat(t_philo *philo)
 				printf("%ld RENDU FOURCHETTES PAR %d\n",ft_get_time(philo->info), philo->id);
 				return (1);
 			}
-			printf("%ld RENDU FOURCHETTES PAR %d\n",ft_get_time(philo->info), philo->id);
-			philo->meal_num++;
+			// usleep(philo->t_eat * 1000);
+			pthread_mutex_lock(&philo->info->meals[philo->id].mutex);
+			philo->info->meals[philo->id].value++;
+			pthread_mutex_unlock(&philo->info->meals[philo->id].mutex);
 			pthread_mutex_unlock(&philo->r_fork->mutex);
 		}
 		pthread_mutex_unlock(&philo->l_fork->mutex);
