@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/15 15:45:06 by nate              #+#    #+#             */
-/*   Updated: 2024/09/17 14:46:12 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/19 11:07:23 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,14 +38,14 @@ int	ft_sleep(int timer, t_philo *philo)
 {
 	int	loop;
 
-	loop = timer * 1000 / 1000;
+	loop = timer * 1000 / 75;
 	while (loop--)
 	{
 		if (ft_need_stop(philo))
 		{
 			return (1);
 		}
-		usleep(1000);
+		usleep(75);
 	}
 	return (0);
 }

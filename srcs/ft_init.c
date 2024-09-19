@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/15 15:44:15 by nate              #+#    #+#             */
-/*   Updated: 2024/09/17 13:58:17 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/19 13:06:54 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ static int	init_forks(t_info *info)
 	while (++i < PHILO_MAX)
 	{
 		if (pthread_mutex_init(&info->forks[i].mutex, NULL) == -1)
+			return (1);
+		if (pthread_mutex_init(&info->meals[i].mutex, NULL) == -1)
 			return (1);
 	}
 	return (0);
@@ -46,6 +48,7 @@ static int	init_philos(t_info *info)
 		info->philo_tab[i].t_die = info->t_die;
 		info->philo_tab[i].t_eat = info->t_eat;
 		info->philo_tab[i].t_sleep = info->t_eat;
+		info->meals[i].value = 0;
 	}
 	return (0);
 }
@@ -60,7 +63,7 @@ int	ft_init(t_info *info, char **av)
 	info->limit = -2;
 	if (av[5])
 		info->limit = ft_atoi(av[5]);
-	info->active_threads = 0;
+	info->info.value = 0;
 	if (pthread_mutex_init(&info->printf.mutex, NULL) == -1)
 		return (ft_error(3, info));
 	else

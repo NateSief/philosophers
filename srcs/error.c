@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 15:51:21 by nate              #+#    #+#             */
-/*   Updated: 2024/09/16 17:36:45 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/19 13:23:54 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,17 @@ static void	destroy_threads(t_info *info)
 	int	i;
 
 	i = -1;
+	while (1)
+	{
+		pthread_mutex_lock(&info->info.mutex);
+		if (info->info.value == 0)
+		{
+			pthread_mutex_unlock(&info->info.mutex);
+			break ;
+		}
+		pthread_mutex_unlock(&info->info.mutex);
+		usleep(100);
+	}
 	while (++i < info->nb_philo)
 		pthread_join(info->philo_tab[i].thread, NULL);
 }
@@ -24,10 +35,9 @@ static void	destroy_threads(t_info *info)
 //	Print the message associated to the error_code then return an int
 int	ft_error(int code, t_info *info)
 {
-	pthread_mutex_lock(&info->is_dead.mutex);
 	pthread_mutex_lock(&info->printf.mutex);
 	if (code == 1)
-		printf("Error\nArgs not valid\n");
+		return (printf("Error\nArgs not valid\n"));
 	else if (code == 2)
 		printf("Error\nError while GetTimeOfDay\n");
 	else if (code == 3)

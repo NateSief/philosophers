@@ -92,13 +92,13 @@ typedef struct s_philo
 
 typedef struct s_info
 {
+	int			limit;
 	int			nb_philo;
 	int			t_die;
 	int			t_eat;
 	int			t_sleep;
-	int			limit;
-	int			active_threads;
 	long		start;
+	t_mutex		meals[PHILO_MAX];
 	t_mutex		printf;
 	t_mutex		info;
 	t_mutex		is_dead;
