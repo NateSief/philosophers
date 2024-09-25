@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 15:48:55 by nate              #+#    #+#             */
-/*   Updated: 2024/09/19 13:33:59 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/25 18:33:47 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static int	ft_meals_check(t_info *info)
 	while (++i < info->nb_philo)
 	{
 		pthread_mutex_lock(&info->meals[i].mutex);
-		if (info->meals[i].value < info->limit || info->limit <= 0)
+		if ((int)info->meals[i].value < info->limit || info->limit <= 0)
 		{
 			pthread_mutex_unlock(&info->meals[i].mutex);
 			return (0);
@@ -41,14 +41,20 @@ static int	ft_is_dead(t_info *info)
 	i = -1;
 	while (++i < info->nb_philo)
 	{
-		if (info->philo_tab[i].last_meal + info->philo_tab[i].t_die <\
-			timestamp() - info->start)
+		pthread_mutex_lock(&info->timers[i].mutex);
+		pthread_mutex_lock(&info->start.mutex);
+		if (info->timers[i].value + info->philo_tab[i].t_die < \
+			(size_t)(timestamp() - info->start.value))
 		{
+			pthread_mutex_unlock(&info->start.mutex);
+			pthread_mutex_unlock(&info->timers[i].mutex);
 			pthread_mutex_lock(&info->is_dead.mutex);
-			info->is_dead.value = info->philo_tab[i].id;
+			info->is_dead.value = i;
 			pthread_mutex_unlock(&info->is_dead.mutex);
 			return (1);
-		}		
+		}
+		pthread_mutex_unlock(&info->start.mutex);
+		pthread_mutex_unlock(&info->timers[i].mutex);
 	}
 	return (0);
 }
@@ -57,8 +63,6 @@ static int	ft_is_dead(t_info *info)
 //		meals
 int	monitor(t_info *info)
 {
-	pthread_mutex_unlock(&info->info.mutex);
-	info->start = timestamp();
 	while (1)
 	{
 		if (ft_meals_check(info))
@@ -70,6 +74,6 @@ int	monitor(t_info *info)
 		}
 		if (ft_is_dead(info))
 			return (ft_error(5, info));
-		usleep(500);
+		usleep(100);
 	}
 }
