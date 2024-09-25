@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 10:35:11 by nate              #+#    #+#             */
-/*   Updated: 2024/09/19 13:34:15 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/25 17:28:15 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@
 int	ft_need_stop(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->info->is_dead.mutex);
-	if (philo->info->is_dead.value != -2 && philo->info->is_dead.value != -1)
+	if ((int)philo->info->is_dead.value != -2 \
+		&& (int)philo->info->is_dead.value != -1)
 	{
 		pthread_mutex_unlock(&philo->info->is_dead.mutex);
 		return (1);
@@ -32,8 +33,6 @@ static int	ft_routine_sleep(t_philo *philo)
 	pthread_mutex_lock(&philo->info->printf.mutex);
 	print_log(3, philo);
 	pthread_mutex_unlock(&philo->info->printf.mutex);
-	// if (ft_sleep(philo->t_sleep, philo))
-		// return (1);
 	usleep(philo->t_sleep * 1000);
 	return (0);
 }
@@ -52,25 +51,24 @@ static int	ft_routine_think(t_philo *philo)
 void	*routine(void *arg)
 {
 	t_philo	philo;
-	
+
 	philo = *(t_philo *)arg;
-	pthread_mutex_lock(&philo.info->info.mutex);
-	pthread_mutex_unlock(&philo.info->info.mutex);
-	usleep(philo.id % 2 * 150);
-	if (philo.info->nb_philo == 1)
-	{
-		usleep(philo.t_die);
-		ft_error(5, philo.info);
-		return (NULL);
-	}
 	while (1)
 	{
-		if (ft_routine_eat(&philo) || ft_need_stop(&philo))
-			break;
-		if (ft_routine_sleep(&philo) || ft_need_stop(&philo))
-			break;
-		if (ft_routine_think(&philo) || ft_need_stop(&philo))
-			break;
+		if (philo.id % 2)
+		{
+			if (ft_need_stop(&philo) || ft_routine_eat(&philo))
+				break ;
+		}
+		else
+		{
+			if (ft_need_stop(&philo) || ft_routine_eat_odd(&philo))
+				break ;
+		}
+		if (ft_need_stop(&philo) || ft_routine_sleep(&philo))
+			break ;
+		if (ft_need_stop(&philo) || ft_routine_think(&philo))
+			break ;
 	}
 	pthread_mutex_lock(&philo.info->info.mutex);
 	philo.info->info.value--;

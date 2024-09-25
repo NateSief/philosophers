@@ -6,23 +6,35 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/15 15:22:00 by nate              #+#    #+#             */
-/*   Updated: 2024/09/19 13:13:23 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/25 17:21:51 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
+//	Launch the threads on the routine then start the monitor
 static int	launch_routine(t_info *info)
 {
 	int	i;
 
+	pthread_mutex_lock(&info->start.mutex);
+	info->start.value = timestamp();
+	pthread_mutex_unlock(&info->start.mutex);
 	i = -1;
-	pthread_mutex_lock(&info->info.mutex);
 	while (++i < info->nb_philo)
 	{
-		pthread_create(&info->philo_tab[i].thread, NULL, (void *)routine,\
+		pthread_create(&info->philo_tab[i].thread, NULL, (void *)routine, \
 			(void *)(&info->philo_tab[i]));
 		info->info.value++;
+		i++;
+	}
+	i = 0;
+	while (++i < info->nb_philo)
+	{
+		pthread_create(&info->philo_tab[i].thread, NULL, (void *)routine, \
+			(void *)(&info->philo_tab[i]));
+		info->info.value++;
+		i++;
 	}
 	return (monitor(info));
 }
@@ -43,5 +55,6 @@ int	main(int ac, char **av)
 		return (1);
 	ret = launch_routine(&info);
 	pthread_mutex_unlock(&info.printf.mutex);
+	pthread_mutex_destroy(&info.printf.mutex);
 	return (ret);
 }
