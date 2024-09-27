@@ -123,6 +123,7 @@ int		ft_pars(t_info *info);
 int		ft_need_stop(t_philo *philo);
 int		ft_routine_eat(t_philo *philo);
 int		ft_routine_eat_odd(t_philo *philo);
+int		ft_sleep(t_philo *philo, int timer);
 int		monitor(t_info *info);
 long	ft_get_time(t_info *info);
 void	print_log(int state, t_philo *philo);

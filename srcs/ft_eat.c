@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 11:34:51 by nate              #+#    #+#             */
-/*   Updated: 2024/09/25 17:27:01 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/27 10:28:34 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int	ft_routine_eat(t_philo *philo)
 			pthread_mutex_lock(&philo->info->timers[philo->id].mutex);
 			philo->info->timers[philo->id].value = ft_get_time(philo->info);
 			pthread_mutex_unlock(&philo->info->timers[philo->id].mutex);
-			usleep(philo->t_eat * 1000);
+			ft_sleep(philo, philo->t_eat);
 			pthread_mutex_lock(&philo->info->meals[philo->id].mutex);
 			philo->info->meals[philo->id].value++;
 			pthread_mutex_unlock(&philo->info->meals[philo->id].mutex);

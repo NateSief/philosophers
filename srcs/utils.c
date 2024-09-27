@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/15 15:45:06 by nate              #+#    #+#             */
-/*   Updated: 2024/09/25 17:28:38 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/27 10:27:53 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,4 +67,36 @@ void	print_log(int state, t_philo *ph)
 		printf("%ld %d is thinking\n", ft_get_time(ph->info), ph->id);
 	else if (state == 5)
 		printf("%ld %d died\n", ft_get_time(ph->info), ph->id);
+}
+
+//	Custom usleep that divide a big usleep into a lot of little usleeps
+//		and also checks if I have to stop to sleep because of the end of the
+//		simulation
+int	ft_sleep(t_philo *philo, int timer)
+{
+	long	actual;
+	long	end;
+
+	actual = ft_get_time(philo->info) * 1000;
+	end = actual + timer * 1000;
+	printf("%ld %d should sleep until %ld\n", actual/1000, philo->id, end/1000);
+	while (actual <= end)
+	{
+		if (end - actual <= 1000)
+		{
+			usleep(end - actual);
+			return (0);
+		}
+		usleep(1000);
+		pthread_mutex_lock(&philo->info->is_dead.mutex);
+		if ((int)philo->info->is_dead.value >= 0 || \
+			(int)philo->info->is_dead.value == -3)
+		{
+			pthread_mutex_unlock(&philo->info->is_dead.mutex);
+			return (1);
+		}
+		pthread_mutex_unlock(&philo->info->is_dead.mutex);
+		actual = ft_get_time(philo->info) * 1000;
+	}
+	return (0);
 }

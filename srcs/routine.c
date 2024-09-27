@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 10:35:11 by nate              #+#    #+#             */
-/*   Updated: 2024/09/25 17:28:15 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/27 10:28:17 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 int	ft_need_stop(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->info->is_dead.mutex);
-	if ((int)philo->info->is_dead.value != -2 \
-		&& (int)philo->info->is_dead.value != -1)
+	if ((int)philo->info->is_dead.value >= 0 || \
+		(int)philo->info->is_dead.value == -3)
 	{
 		pthread_mutex_unlock(&philo->info->is_dead.mutex);
 		return (1);
@@ -33,7 +33,7 @@ static int	ft_routine_sleep(t_philo *philo)
 	pthread_mutex_lock(&philo->info->printf.mutex);
 	print_log(3, philo);
 	pthread_mutex_unlock(&philo->info->printf.mutex);
-	usleep(philo->t_sleep * 1000);
+	ft_sleep(philo, philo->t_sleep);
 	return (0);
 }
 

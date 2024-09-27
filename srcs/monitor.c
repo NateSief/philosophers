@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 15:48:55 by nate              #+#    #+#             */
-/*   Updated: 2024/09/25 18:33:47 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/27 09:52:28 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,24 +36,25 @@ static int	ft_meals_check(t_info *info)
 //		died because of starving
 static int	ft_is_dead(t_info *info)
 {
-	int	i;
+	int		i;
+	long	start_value;
 
 	i = -1;
+	pthread_mutex_lock(&info->start.mutex);
+	start_value = info->start.value;
+	pthread_mutex_unlock(&info->start.mutex);
 	while (++i < info->nb_philo)
 	{
 		pthread_mutex_lock(&info->timers[i].mutex);
-		pthread_mutex_lock(&info->start.mutex);
 		if (info->timers[i].value + info->philo_tab[i].t_die < \
-			(size_t)(timestamp() - info->start.value))
+			(size_t)(timestamp() - start_value + 1))
 		{
-			pthread_mutex_unlock(&info->start.mutex);
 			pthread_mutex_unlock(&info->timers[i].mutex);
 			pthread_mutex_lock(&info->is_dead.mutex);
 			info->is_dead.value = i;
 			pthread_mutex_unlock(&info->is_dead.mutex);
 			return (1);
 		}
-		pthread_mutex_unlock(&info->start.mutex);
 		pthread_mutex_unlock(&info->timers[i].mutex);
 	}
 	return (0);

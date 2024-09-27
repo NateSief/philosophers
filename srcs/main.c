@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/15 15:22:00 by nate              #+#    #+#             */
-/*   Updated: 2024/09/25 17:21:51 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/26 15:47:04 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,13 +40,15 @@ static int	launch_routine(t_info *info)
 }
 
 // Get if there is all the informations in the args, then launche the simulation
-int	main(int ac, char **av)
+int	main(int ac, char **av, char **envp)
 {
 	t_info			info;
 	t_philo			philo[PHILO_MAX];
 	t_mutex			forks[PHILO_MAX];
 	char			ret;
 
+	if (!envp)
+		return (printf("Need environment to run\n"));
 	info.philo_tab = philo;
 	info.forks = forks;
 	if (ac != 6 && ac != 5)

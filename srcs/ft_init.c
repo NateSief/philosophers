@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/15 15:44:15 by nate              #+#    #+#             */
-/*   Updated: 2024/09/24 17:40:05 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/27 09:57:45 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static int	init_philos(t_info *info)
 		info->philo_tab[i].meal_num = 0;
 		info->philo_tab[i].t_die = info->t_die;
 		info->philo_tab[i].t_eat = info->t_eat;
-		info->philo_tab[i].t_sleep = info->t_eat;
+		info->philo_tab[i].t_sleep = info->t_sleep;
 		info->meals[i].value = 0;
 		info->timers[i].value = 0;
 	}

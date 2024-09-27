@@ -6,7 +6,7 @@
 /*   By: nate <nate@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 10:23:13 by nate              #+#    #+#             */
-/*   Updated: 2024/09/23 19:01:29 by nate             ###   ########.fr       */
+/*   Updated: 2024/09/27 09:58:00 by nate             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	ft_pars(t_info *info)
 {
-	if (info->t_die == -1)
+	if (info->t_die <= 0)
 		return (ft_error(1, info));
 	if (info->t_eat == -1)
 		return (ft_error(1, info));

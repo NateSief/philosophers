@@ -6,7 +6,7 @@
 #    By: nate <nate@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/16 16:53:50 by nate              #+#    #+#              #
-#    Updated: 2024/09/25 18:32:38 by nate             ###   ########.fr        #
+#    Updated: 2024/09/26 14:56:38 by nate             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,7 @@ SRCS =	$(SRCS_DIR)/main.c		\
 OBJS = $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g3 -lpthread -I$(INCLUDES_DIR) 
+CFLAGS = -Wall -Wextra -Werror -g3 -pthread -I$(INCLUDES_DIR) 
 
 all: $(NAME)
 
